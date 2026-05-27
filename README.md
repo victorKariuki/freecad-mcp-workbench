@@ -6,7 +6,7 @@
 >
 > It exists solely to facilitate installation via the FreeCAD Addon Manager (**Preferences > Addon > Custom Repositories**) in cases where the official addon is unavailable or hard to locate. For the official project and documentation, please visit [spkane/freecad-robust-mcp-and-more](https://github.com/spkane/freecad-robust-mcp-and-more).
 
-**Version:** 0.6.2
+**Version:** 0.6.3
 
 ## Installation
 

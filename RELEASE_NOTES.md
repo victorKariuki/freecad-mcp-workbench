@@ -1,5 +1,20 @@
 # Robust MCP Bridge Workbench Release Notes
 
+## Version 0.6.3 (2026-05-27)
+
+This release addresses critical compatibility issues with FreeCAD Snap installations and improves Qt library detection.
+
+### Fixed
+
+- **PySide2 initialization error in Snap**: Fixed a crash (`NameError: name '_init_pyside_extension' is not defined`) caused by broken PySide2 installations in some Snap environments.
+- **Improved Qt Detection**: The workbench now prefers **PySide6** over PySide2. This avoids triggering known bugs in older Qt mappings and aligns with modern FreeCAD distributions.
+- **Robust Imports**: Import logic now catches `NameError` and `AttributeError` to handle partially installed or corrupted Qt libraries gracefully.
+- **Graceful Degradation**: If no Qt modules (PySide2/6) are found, the bridge server will still start, but GUI-dependent features (like the status bar widget) will be safely disabled instead of causing a startup crash.
+
+### Added
+
+- **Version Reporting**: Added console messages to identify which Qt version is being used (e.g., "Using PySide6 (Qt version 6.10.x)").
+
 ## Version 0.6.2 (2026-01-18)
 
 This release fixes some auto-start issues and improves the overall startup experience across all supported modes.
