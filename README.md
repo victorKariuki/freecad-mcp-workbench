@@ -10,13 +10,17 @@
 
 ## Installation
 
-### Via FreeCAD Addon Manager (Recommended)
+### Via FreeCAD Addon Manager (Custom Repository)
 
-1. Open FreeCAD
-2. Go to **Tools → Addon Manager**
-3. Search for "Robust MCP Bridge"
-4. Click **Install**
-5. Restart FreeCAD
+The repository is fully ready for the FreeCAD Addon Manager:
+**URL:** [https://github.com/victorKariuki/freecad-mcp-workbench](https://github.com/victorKariuki/freecad-mcp-workbench)
+
+To use it in FreeCAD:
+1. Go to **Tools > Addon Manager**.
+2. Click the **Preferences** (gear icon) in the bottom right.
+3. Go to the **Workbenches** or **Custom Repositories** tab.
+4. Add the URL above: `https://github.com/victorKariuki/freecad-mcp-workbench`
+5. Search for "**Robust MCP Bridge**" in the main Addon Manager list.
 
 ### Manual Installation
 
