@@ -364,10 +364,10 @@ class MCPBridgePreferencesCommand:
 
         # Import QtWidgets with fallback for different PySide versions
         try:
-            from PySide2 import QtWidgets
+            from PySide6 import QtWidgets
         except (ImportError, NameError, AttributeError):
             try:
-                from PySide6 import QtWidgets
+                from PySide2 import QtWidgets
             except (ImportError, NameError, AttributeError):
                 from PySide import QtWidgets  # type: ignore[import-not-found]
 

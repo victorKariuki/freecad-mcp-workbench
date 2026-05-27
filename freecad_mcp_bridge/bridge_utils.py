@@ -91,16 +91,16 @@ class GuiWaiter:
 
         # Resolve QtCore once and store for later use
         try:
-            from PySide2 import QtCore  # type: ignore[import]
+            from PySide6 import QtCore  # type: ignore[import]
         except (ImportError, NameError, AttributeError):
             try:
-                from PySide6 import QtCore  # type: ignore[import]
+                from PySide2 import QtCore  # type: ignore[import]
             except (ImportError, NameError, AttributeError):
                 try:
                     from PySide import QtCore  # type: ignore[import]
                 except (ImportError, NameError, AttributeError):
                     FreeCAD.Console.PrintError(
-                        f"{self.log_prefix}: Neither PySide2, PySide6, nor PySide is available. "
+                        f"{self.log_prefix}: Neither PySide6, PySide2, nor PySide is available. "
                         "Cannot wait for GUI - Qt is required for timer-based waiting.\n"
                     )
                     return

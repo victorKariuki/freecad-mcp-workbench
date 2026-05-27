@@ -39,10 +39,10 @@ def _is_main_thread() -> bool:
         QtCore = None
         QtWidgets = None
         try:
-            from PySide2 import QtCore, QtWidgets
+            from PySide6 import QtCore, QtWidgets
         except (ImportError, NameError, AttributeError):
             try:
-                from PySide6 import QtCore, QtWidgets
+                from PySide2 import QtCore, QtWidgets
             except (ImportError, NameError, AttributeError):
                 try:
                     from PySide import QtCore, QtWidgets
@@ -115,7 +115,13 @@ class MCPStatusWidget:
 
         try:
             import FreeCADGui
-            from PySide import QtWidgets  # type: ignore[import-not-found]
+            try:
+                from PySide6 import QtWidgets
+            except (ImportError, NameError, AttributeError):
+                try:
+                    from PySide2 import QtWidgets
+                except (ImportError, NameError, AttributeError):
+                    from PySide import QtWidgets  # type: ignore[import-not-found]
 
             # Get the main window and status bar
             main_window = FreeCADGui.getMainWindow()

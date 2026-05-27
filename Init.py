@@ -146,19 +146,23 @@ try:
         _is_true_headless = False
 
         try:
-            from PySide2 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
+            from PySide6 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
         except (ImportError, NameError, AttributeError):
-            with contextlib.suppress(Exception):
-                from PySide6 import (  # type: ignore[assignment, no-redef]
-                    QtCore,
-                    QtWidgets,
-                )
-            if QtCore is None:
-                with contextlib.suppress(Exception):
-                    from PySide import (  # type: ignore[assignment, no-redef]
-                        QtCore,
-                        QtWidgets,
-                    )
+            try:
+                from PySide2 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
+            except (ImportError, NameError, AttributeError):
+                if QtCore is None:
+                    with contextlib.suppress(Exception):
+                        from PySide import (  # type: ignore[assignment, no-redef]
+                            QtCore,
+                            QtWidgets,
+                        )
+
+        if QtCore is not None:
+            FreeCAD.Console.PrintMessage(
+                f"Robust MCP Bridge: Using {QtCore.__name__.split('.')[0]} "
+                f"(Qt version {QtCore.qVersion()})\n"
+            )
 
         # Detect GUI mode vs true headless mode
         # - True headless (freecadcmd): QCoreApplication exists but NOT QApplication

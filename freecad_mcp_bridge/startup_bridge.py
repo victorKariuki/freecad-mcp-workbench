@@ -161,11 +161,11 @@ try:
     _is_true_headless = False
 
     try:
-        from PySide2 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
+        from PySide6 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
     except (ImportError, NameError, AttributeError):
-        with contextlib.suppress(Exception):
-            from PySide6 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
-        if QtCore is None:
+        try:
+            from PySide2 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
+        except (ImportError, NameError, AttributeError):
             with contextlib.suppress(Exception):
                 from PySide import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
 

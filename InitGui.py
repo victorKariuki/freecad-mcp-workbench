@@ -121,15 +121,21 @@ try:
     # Try to import QtCore robustly to handle broken PySide2 in some environments (like Snap)
     QtCore = None
     try:
-        from PySide2 import QtCore
+        from PySide6 import QtCore
     except (ImportError, NameError, AttributeError):
         try:
-            from PySide6 import QtCore
+            from PySide2 import QtCore
         except (ImportError, NameError, AttributeError):
             try:
                 from PySide import QtCore
             except (ImportError, NameError, AttributeError):
                 QtCore = None
+
+    if QtCore is not None:
+        FreeCAD.Console.PrintMessage(
+            f"Robust MCP Bridge: Using {QtCore.__name__.split('.')[0]} "
+            f"(Qt version {QtCore.qVersion()})\n"
+        )
 
     def _deferred_status_bar_sync() -> None:
         """Sync status bar with bridge state after GUI is ready."""
