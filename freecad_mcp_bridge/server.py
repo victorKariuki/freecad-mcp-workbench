@@ -62,16 +62,27 @@ def _get_qt_core() -> Any:
     if not (FREECAD_AVAILABLE and FreeCAD.GuiUp):
         return None
 
-    # Try PySide2 first, then PySide6
-    with contextlib.suppress(ImportError):
+    # Try PySide2 first, then PySide6, then PySide
+    try:
         from PySide2 import QtCore
 
         return QtCore
+    except (ImportError, NameError, AttributeError):
+        pass
 
-    with contextlib.suppress(ImportError):
+    try:
         from PySide6 import QtCore
 
         return QtCore
+    except (ImportError, NameError, AttributeError):
+        pass
+
+    try:
+        from PySide import QtCore
+
+        return QtCore
+    except (ImportError, NameError, AttributeError):
+        pass
 
     return None
 
@@ -474,11 +485,14 @@ class FreecadMCPPlugin:
             # GUI mode: use Qt timer for thread-safe GUI operations
             try:
                 from PySide2 import QtCore
-            except ImportError:
+            except (ImportError, NameError, AttributeError):
                 try:
                     from PySide6 import QtCore
-                except ImportError:
-                    QtCore = None  # type: ignore[assignment]
+                except (ImportError, NameError, AttributeError):
+                    try:
+                        from PySide import QtCore
+                    except (ImportError, NameError, AttributeError):
+                        QtCore = None  # type: ignore[assignment]
 
             if QtCore is not None:
                 timer = QtCore.QTimer()

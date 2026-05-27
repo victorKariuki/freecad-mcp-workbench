@@ -162,9 +162,12 @@ try:
 
     try:
         from PySide2 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
-    except ImportError:
-        with contextlib.suppress(ImportError):
+    except (ImportError, NameError, AttributeError):
+        with contextlib.suppress(Exception):
             from PySide6 import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
+        if QtCore is None:
+            with contextlib.suppress(Exception):
+                from PySide import QtCore, QtWidgets  # type: ignore[assignment, no-redef]
 
     # Detect GUI mode vs true headless mode
     # - True headless (freecadcmd): QCoreApplication exists but NOT QApplication

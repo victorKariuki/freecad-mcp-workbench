@@ -99,42 +99,9 @@ class FreecadRobustMCPBridgeWorkbench(FreeCADGui.Workbench):
 
         FreeCAD.Console.PrintMessage("Robust MCP Bridge workbench initialized\n")
 
-        # Auto-start bridge if preference is enabled
-        # This is a fallback if the module-level timer didn't fire
-        # (which can happen if the module isn't loaded until workbench selection)
-        try:
-            from preferences import get_auto_start
-
-            if get_auto_start():
-                # Check if already running (timer might have started it)
-                from commands import is_bridge_running
-
-                if not is_bridge_running():
-                    FreeCAD.Console.PrintMessage(
-                        "Auto-starting MCP Bridge (configured in preferences)...\n"
-                    )
-                    FreeCADGui.runCommand("Start_MCP_Bridge")
-        except Exception as e:
-            FreeCAD.Console.PrintWarning(f"Could not auto-start MCP Bridge: {e}\n")
-
-        # Sync status bar widget with current bridge state
-        # (bridge may have been started by Init.py before workbench was selected)
-        try:
-            from status_widget import sync_status_with_bridge
-
-            sync_status_with_bridge()
-        except Exception as e:
-            FreeCAD.Console.PrintWarning(f"Could not sync status bar: {e}\n")
-
     def Activated(self) -> None:
         """Called when the workbench is activated."""
-        # Sync status bar widget with current bridge state
-        try:
-            from status_widget import sync_status_with_bridge
-
-            sync_status_with_bridge()
-        except Exception as e:
-            FreeCAD.Console.PrintWarning(f"Could not sync status bar: {e}\n")
+        pass
 
     def Deactivated(self) -> None:
         """Called when the workbench is deactivated."""
@@ -151,10 +118,18 @@ FreeCADGui.addWorkbench(FreecadRobustMCPBridgeWorkbench())
 # Schedule status bar sync after a short delay to allow GUI to finish initializing
 # This runs on the main thread (InitGui.py is executed on main thread)
 try:
+    # Try to import QtCore robustly to handle broken PySide2 in some environments (like Snap)
+    QtCore = None
     try:
         from PySide2 import QtCore
-    except ImportError:
-        from PySide6 import QtCore
+    except (ImportError, NameError, AttributeError):
+        try:
+            from PySide6 import QtCore
+        except (ImportError, NameError, AttributeError):
+            try:
+                from PySide import QtCore
+            except (ImportError, NameError, AttributeError):
+                QtCore = None
 
     def _deferred_status_bar_sync() -> None:
         """Sync status bar with bridge state after GUI is ready."""
@@ -173,50 +148,17 @@ try:
                 f"Robust MCP Bridge: Deferred status bar sync failed: {e}\n"
             )
 
-    # Use QTimer.singleShot on the main thread - this should work
-    QtCore.QTimer.singleShot(2000, _deferred_status_bar_sync)
-    FreeCAD.Console.PrintMessage(
-        "Robust MCP Bridge: Status bar sync scheduled from InitGui (2s)\n"
-    )
-
     # Auto-start the MCP bridge if configured in preferences
-    # This runs at FreeCAD GUI startup (InitGui.py module-level code)
-    # Note: Init.py does NOT run at startup for workbench addons, so auto-start
-    # must be triggered from here instead.
-    #
-    # We use GuiWaiter to poll FreeCAD.GuiUp instead of a fixed timer delay.
-    # This ensures we wait for the GUI to actually be ready, rather than
-    # hoping a fixed delay is long enough.
     def _auto_start_bridge() -> None:
-        """Auto-start bridge after GUI is confirmed ready.
-
-        This is the callback invoked by GuiWaiter once FreeCAD.GuiUp is True
-        and a defer period has elapsed. At this point, it's safe to start
-        the MCP bridge with Qt timer-based queue processing.
-
-        Args:
-            None.
-
-        Returns:
-            None. Early returns if auto-start disabled or bridge already running.
-
-        Raises:
-            Exception: Any exception during bridge startup is caught, logged
-                to FreeCAD.Console.PrintError with full traceback, and suppressed.
-
-        Side Effects:
-            - Creates and starts a FreecadMCPPlugin instance
-            - Registers the plugin with the workbench commands module
-            - Syncs the status bar widget with bridge state
-        """
+        """Auto-start bridge after GUI is confirmed ready."""
         try:
             # Safety check: verify GUI is actually ready before starting
-            # If not ready, reschedule for another attempt
             if not FreeCAD.GuiUp:
-                FreeCAD.Console.PrintMessage(
-                    "Robust MCP Bridge: GUI not ready, rescheduling auto-start...\n"
-                )
-                QtCore.QTimer.singleShot(500, _auto_start_bridge)
+                if QtCore:
+                    FreeCAD.Console.PrintMessage(
+                        "Robust MCP Bridge: GUI not ready, rescheduling auto-start...\n"
+                    )
+                    QtCore.QTimer.singleShot(500, _auto_start_bridge)
                 return
 
             from preferences import get_auto_start
@@ -271,24 +213,32 @@ try:
 
             FreeCAD.Console.PrintError(traceback.format_exc())
 
-    # Check if auto-start is enabled before scheduling
-    from preferences import get_auto_start
+    if QtCore:
+        # Use QTimer.singleShot on the main thread - this should work
+        QtCore.QTimer.singleShot(2000, _deferred_status_bar_sync)
+        FreeCAD.Console.PrintMessage(
+            "Robust MCP Bridge: Status bar sync scheduled from InitGui (2s)\n"
+        )
 
-    if get_auto_start():
-        # Schedule auto-start after a delay to ensure GUI is fully ready.
-        # InitGui.py module-level code runs early in FreeCAD startup, so we
-        # need to defer the bridge start to avoid race conditions.
-        # Note: We use a simple QTimer.singleShot() here because GuiWaiter
-        # has timing issues when used from module-level code during startup.
-        QtCore.QTimer.singleShot(3000, _auto_start_bridge)
-        FreeCAD.Console.PrintMessage(
-            "Robust MCP Bridge: Auto-start scheduled from InitGui (3s)\n"
-        )
+        # Check if auto-start is enabled before scheduling
+        from preferences import get_auto_start
+
+        if get_auto_start():
+            # Schedule auto-start after a delay to ensure GUI is fully ready.
+            QtCore.QTimer.singleShot(3000, _auto_start_bridge)
+            FreeCAD.Console.PrintMessage(
+                "Robust MCP Bridge: Auto-start scheduled from InitGui (3s)\n"
+            )
+        else:
+            FreeCAD.Console.PrintMessage(
+                "Robust MCP Bridge: Auto-start disabled in preferences\n"
+            )
     else:
-        FreeCAD.Console.PrintMessage(
-            "Robust MCP Bridge: Auto-start disabled in preferences\n"
+        FreeCAD.Console.PrintWarning(
+            "Robust MCP Bridge: PySide/QtCore not found. GUI features disabled.\n"
         )
+
 except Exception as e:
     FreeCAD.Console.PrintWarning(
-        f"Robust MCP Bridge: Could not schedule status bar sync: {e}\n"
+        f"Robust MCP Bridge: Could not initialize GUI components: {e}\n"
     )

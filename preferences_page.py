@@ -12,7 +12,13 @@ the actual preference storage. This module only handles the UI.
 
 from __future__ import annotations
 
-from PySide import QtCore, QtWidgets  # type: ignore[import-not-found]
+try:
+    from PySide2 import QtCore, QtWidgets
+except (ImportError, NameError, AttributeError):
+    try:
+        from PySide6 import QtCore, QtWidgets
+    except (ImportError, NameError, AttributeError):
+        from PySide import QtCore, QtWidgets  # type: ignore[import-not-found]
 
 
 class MCPBridgePreferencesPage(QtWidgets.QWidget):

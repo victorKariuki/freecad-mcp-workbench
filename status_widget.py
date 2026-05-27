@@ -35,11 +35,19 @@ def _is_main_thread() -> bool:
         True if on main thread, False otherwise.
     """
     try:
-        # Try to import Qt (PySide6 first, then PySide2 as fallback)
+        # Try to import Qt robustly
+        QtCore = None
+        QtWidgets = None
         try:
-            from PySide6 import QtCore, QtWidgets
-        except ImportError:
             from PySide2 import QtCore, QtWidgets
+        except (ImportError, NameError, AttributeError):
+            try:
+                from PySide6 import QtCore, QtWidgets
+            except (ImportError, NameError, AttributeError):
+                try:
+                    from PySide import QtCore, QtWidgets
+                except (ImportError, NameError, AttributeError):
+                    pass
 
         # Get the QApplication instance
         app = QtWidgets.QApplication.instance()
