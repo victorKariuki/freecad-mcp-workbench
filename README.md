@@ -32,9 +32,30 @@ Copy the contents of this archive to your FreeCAD Mod directory:
 
 ## Usage
 
-1. Switch to the **Robust MCP Bridge** workbench
-2. Click **Start MCP Bridge** in the toolbar
-3. Connect your MCP client (Claude Code, etc.)
+1. Switch to the **Robust MCP Bridge** workbench.
+2. Click **Start MCP Bridge** in the toolbar.
+3. Connect your MCP client (Claude Code, etc.).
+
+## MCP Client Configuration
+
+### Claude Code / Claude Desktop
+
+Add the following to your `~/.claude/claude_desktop_config.json` (or a project-specific `.mcp.json` file):
+
+```json
+{
+  "mcpServers": {
+    "freecad": {
+      "command": "freecad-mcp",
+      "env": {
+        "FREECAD_MODE": "xmlrpc"
+      }
+    }
+  }
+}
+```
+
+*Note: This configuration assumes the `freecad-mcp` command is installed and available in your system path.*
 
 ## Documentation
 
