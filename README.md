@@ -1,5 +1,11 @@
 # Robust MCP Bridge Workbench
 
+> [!IMPORTANT]
+> **DISCLAIMER:** This is **NOT** the official release of this workbench.
+> This repository is a mirrored copy based on the official [v0.6.2 release](https://github.com/spkane/freecad-addon-robust-mcp-server/releases/tag/robust-mcp-workbench-v0.6.2) by [@spkane](https://github.com/spkane).
+>
+> It exists solely to facilitate installation via the FreeCAD Addon Manager (**Preferences > Addon > Custom Repositories**) in cases where the official addon is unavailable or hard to locate. For the official project and documentation, please visit [spkane/freecad-robust-mcp-and-more](https://github.com/spkane/freecad-robust-mcp-and-more).
+
 **Version:** 0.6.2
 
 ## Installation
